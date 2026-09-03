@@ -1,3 +1,5 @@
 # Electric power consumption data analysis
-## Prerequisites
-`pip install pandas kagglehub`
+## Requirements
+```bash
+   pip install -r requirements.txt
+```
