@@ -1,2 +1,3 @@
-# power_consumption
-Electric Power Consumption
+# Electric power consumption data analysis
+## Prerequisites
+`pip install pandas kagglehub`
