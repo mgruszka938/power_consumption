@@ -108,11 +108,30 @@ def plot_data(cleaned_data):
     plt.tight_layout()
     plt.show()
 
+def plot_profiles(cleaned_data):
+    hourly_profile = cleaned_data.groupby("hour")["Global_active_power"].mean()
+    day_of_week_profile = cleaned_data.groupby("day_of_week")["Global_active_power"].mean()
+    monthly_profile = cleaned_data.groupby("month")["Global_active_power"].mean()
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+    axes[0].plot(hourly_profile, marker="o", color=PALETTE[3], linewidth=2)
+    axes[0].set_title("Average Global Active Power by Hour of Day")
+    axes[0].set_xlabel("Hour of Day"); axes[0].set_ylabel("Global Active Power (kW)")
+    axes[1].bar(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], day_of_week_profile.values, color=PALETTE[4])
+    axes[1].set_title("Average Global Active Power by Day of Week")
+    axes[1].set_xlabel("Day of Week"); axes[1].set_ylabel("Global Active Power (kW)")
+    axes[2].bar(range(1, 13), monthly_profile.values, color=PALETTE[5])
+    axes[2].set_title("Average Global Active Power by Month")
+    axes[2].set_xlabel("Month"); axes[2].set_ylabel("Global Active Power (kW)")
+    plt.tight_layout()
+    plt.show()
+    
+    
 def main():
     raw = data_import()
     data_check(raw)
     cleaned = data_cleanup(raw)
     plot_data(cleaned)
+    plot_profiles(cleaned)
 
 
 if __name__ == "__main__":
