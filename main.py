@@ -10,14 +10,26 @@ SENSOR_COLS = ["Global_active_power", "Global_reactive_power", "Voltage", "Globa
 
 PALETTE = sns.color_palette("deep", 6)
 
-def save_to_sqlite(cleaned_data, db_path="power.db"):
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "power.db")
+
+def save_to_sqlite(cleaned_data, db_path=DB_PATH):
     table = cleaned_data[SENSOR_COLS].reset_index()
     table["datetime"] = table["datetime"].dt.strftime("%Y-%m-%d %H:%M:%S")
 
-    con = sqlite3.connect(db_path)
-    table.to_sql("readings", con, if_exists="replace", index=False, chunksize=50_000)
-    con.commit()
-    con.close()
+    # Build in a temporary file and rename it at the end, so db_path only ever
+    # exists as a complete database, even if this function crashes halfway.
+    tmp_path = db_path + ".tmp"
+    if os.path.exists(tmp_path):
+        os.remove(tmp_path)
+
+    con = sqlite3.connect(tmp_path)
+    try:
+        table.to_sql("readings", con, if_exists="replace", index=False, chunksize=50_000)
+        con.execute("CREATE INDEX IF NOT EXISTS idx_readings_datetime ON readings(datetime)")
+        con.commit()
+    finally:
+        con.close()
+    os.replace(tmp_path, db_path)
 
 def data_import():
     DATA_PATH = kagglehub.dataset_download("uciml/electric-power-consumption-data-set")
@@ -137,10 +149,14 @@ def plot_profiles(cleaned_data):
     
     
 def main():
+    if os.path.exists(DB_PATH):
+        print(f"{DB_PATH} already exists, skipping rebuild. Delete it to rebuild.")
+        return
+
     raw = data_import()
     data_check(raw)
     cleaned = data_cleanup(raw)
-    save_to_sqlite(cleaned)
+    save_to_sqlite(cleaned, DB_PATH)
     # plot_data(cleaned)
     # plot_profiles(cleaned)
 
