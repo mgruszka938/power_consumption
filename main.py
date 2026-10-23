@@ -3,11 +3,21 @@ import os
 import kagglehub
 import matplotlib.pyplot as plt
 import seaborn as sns
+import sqlite3
 
 SENSOR_COLS = ["Global_active_power", "Global_reactive_power", "Voltage", "Global_intensity",
                "Sub_metering_1", "Sub_metering_2", "Sub_metering_3"]
 
 PALETTE = sns.color_palette("deep", 6)
+
+def save_to_sqlite(cleaned_data, db_path="power.db"):
+    table = cleaned_data[SENSOR_COLS].reset_index()
+    table["datetime"] = table["datetime"].dt.strftime("%Y-%m-%d %H:%M:%S")
+
+    con = sqlite3.connect(db_path)
+    table.to_sql("readings", con, if_exists="replace", index=False, chunksize=50_000)
+    con.commit()
+    con.close()
 
 def data_import():
     DATA_PATH = kagglehub.dataset_download("uciml/electric-power-consumption-data-set")
@@ -130,8 +140,9 @@ def main():
     raw = data_import()
     data_check(raw)
     cleaned = data_cleanup(raw)
-    plot_data(cleaned)
-    plot_profiles(cleaned)
+    save_to_sqlite(cleaned)
+    # plot_data(cleaned)
+    # plot_profiles(cleaned)
 
 
 if __name__ == "__main__":
