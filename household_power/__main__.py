@@ -40,6 +40,10 @@ def main():
 
     args = parser.parse_args()
 
+    needs_db = args.command == "report" or (args.command == "query" and args.name)
+    if needs_db and not db.DB_PATH.exists():
+        parser.exit(1, f"{db.DB_PATH.name} not found. Run: python -m household_power build\n")
+
     if args.command == "build":
         build(args.force)
     elif args.command == "report":
