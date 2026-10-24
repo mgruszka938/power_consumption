@@ -1,4 +1,3 @@
-"""Run every query file against a small database where the right answers are known."""
 import pandas as pd
 import pytest
 
@@ -9,8 +8,7 @@ def test_there_is_a_test_for_every_query_file():
     assert len(db.query_names()) == 8
 
 
-# 04 ignores months with fewer than 20 complete days, so the 3-day sample is empty
-# for it; it has its own test below.
+# 04 needs 20 complete days per month, so it has its own test below
 @pytest.mark.parametrize("name", [n for n in db.query_names() if not n.startswith("04")])
 def test_query_runs(name, sample_db):
     assert len(db.run_query(name, sample_db)) > 0
@@ -18,8 +16,8 @@ def test_query_runs(name, sample_db):
 
 def test_daily_energy_is_kwh(sample_db):
     daily = db.run_query("01_daily_energy", sample_db).set_index("day")
-    assert daily.loc["2020-01-01", "kwh"] == 24.0   # 1 kW for 24 hours
-    assert daily.loc["2020-01-02", "kwh"] == 22.0   # 120 minutes missing
+    assert daily.loc["2020-01-01", "kwh"] == 24.0
+    assert daily.loc["2020-01-02", "kwh"] == 22.0
     assert daily.loc["2020-01-02", "readings"] == 1320
 
 
@@ -37,13 +35,12 @@ def test_missing_block_is_found(sample_db):
 
 def test_submetering_shares_add_up(sample_db):
     row = db.run_query("07_submetering_share", sample_db).iloc[0]
-    # total is 1 kW = 1000/60 Wh per minute; kitchen is 10 Wh per minute
     assert row["kitchen_pct"] == pytest.approx(60.0, abs=0.1)
     assert row[["kitchen_pct", "laundry_pct", "heating_pct", "other_pct"]].sum() == pytest.approx(100.0, abs=0.2)
 
 
 def test_year_over_year_compares_the_same_month(tmp_path):
-    # 25 complete days of January in two consecutive years; the second year uses twice the power.
+    # January 2020 at 1 kW, January 2021 at 2 kW
     frames = []
     for year, kw in ((2020, 1.0), (2021, 2.0)):
         index = pd.date_range(f"{year}-01-01", periods=25 * 1440, freq="min", name="datetime")

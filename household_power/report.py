@@ -1,9 +1,8 @@
-"""Charts built from the SQL query results."""
 from pathlib import Path
 
 import matplotlib
 
-matplotlib.use("Agg")  # write files, never open a window
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -38,7 +37,7 @@ def _save(fig, name, out_dir):
 def daily_energy(db_path, out_dir):
     df = run_query("05_rolling_7day", db_path)
     df["day"] = pd.to_datetime(df["day"])
-    # Reindex to every calendar day so days dropped for missing data show as breaks.
+    # reindex so days dropped for missing data show as breaks
     df = df.set_index("day").reindex(pd.date_range(df["day"].min(), df["day"].max()))
 
     fig, ax = plt.subplots(figsize=(10, 4))

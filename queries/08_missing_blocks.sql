@@ -1,11 +1,4 @@
--- Every stretch of consecutive missing readings, longest first.
---
--- This is the "gaps and islands" pattern. Number all rows in time order
--- (rn), then keep only the missing rows and number those again. Window
--- functions run after WHERE, so the second counter only sees missing rows.
--- Within one unbroken stretch both counters grow by one per row, so their
--- difference stays constant; it jumps when a present row interrupts the
--- stretch. Grouping by that difference isolates each stretch.
+-- Runs of consecutive missing readings, longest first (gaps and islands).
 WITH flagged AS (
     SELECT
         datetime,

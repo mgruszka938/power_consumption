@@ -1,12 +1,4 @@
--- Where the electricity goes: share of total energy per sub-meter, by year.
---
--- Sub_metering_1..3 are watt-hours per minute (kitchen, laundry room,
--- water heater and air conditioner). Global_active_power is in kW, so
--- kW * 1000 / 60 gives the household total in the same unit, Wh per minute.
--- Whatever the three sub-meters do not measure is "other": total minus the
--- three, as described in the dataset documentation.
--- Only minutes where every value is present are used, and shares are
--- percentages so that the partial first and last years stay comparable.
+-- Share of energy per sub-meter by year. Sub-meters are Wh per minute, so kW * 1000 / 60 puts the total in the same unit.
 WITH minutes AS (
     SELECT
         strftime('%Y', datetime)              AS year,

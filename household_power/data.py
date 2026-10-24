@@ -1,4 +1,3 @@
-"""Loading, checking and cleaning the UCI household power consumption data."""
 import os
 
 import kagglehub
@@ -10,12 +9,10 @@ RAW_FILE = "household_power_consumption.txt"
 SENSOR_COLS = ["Global_active_power", "Global_reactive_power", "Voltage", "Global_intensity",
                "Sub_metering_1", "Sub_metering_2", "Sub_metering_3"]
 
-# Gaps up to this many minutes are filled by interpolation; longer ones stay empty.
 MAX_FILL_MINUTES = 60
 
 
 def load_raw():
-    """Read the raw CSV (downloaded once by kagglehub, then served from its cache)."""
     folder = kagglehub.dataset_download(DATASET)
     dtypes = {col: "float32" for col in SENSOR_COLS}
     return pd.read_csv(
@@ -28,7 +25,6 @@ def load_raw():
 
 
 def check_quality(raw):
-    """Count duplicates and missing values, and measure the gaps in the data."""
     timestamps = pd.to_datetime(raw["Date"] + " " + raw["Time"], format="%d/%m/%Y %H:%M:%S")
 
     missing_row = raw[SENSOR_COLS].isna().any(axis=1)
@@ -45,13 +41,7 @@ def check_quality(raw):
 
 
 def fill_short_gaps(series, max_minutes=MAX_FILL_MINUTES):
-    """Interpolate gaps of at most max_minutes and leave longer gaps empty.
-
-    Series.interpolate(limit=n) is not enough: for a longer gap it still fills
-    the first n values and leaves the rest empty, which invents data inside an
-    outage. Here a gap is filled completely or not at all. Assumes one row per
-    minute, so the number of missing rows in a gap is its length in minutes.
-    """
+    # interpolate(limit=n) fills the first n values of a longer gap, so long gaps are masked again
     run_id = series.notna().cumsum()  # a gap shares its id with the value before it
     gap_length = series.isna().groupby(run_id).transform("sum")
     interpolated = series.interpolate(method="time", limit_area="inside")
@@ -59,7 +49,6 @@ def fill_short_gaps(series, max_minutes=MAX_FILL_MINUTES):
 
 
 def clean(raw, max_fill_minutes=MAX_FILL_MINUTES):
-    """Drop duplicates, index by timestamp, sort and fill short gaps."""
     data = raw.drop_duplicates().copy()
     data["datetime"] = pd.to_datetime(data["Date"] + " " + data["Time"], format="%d/%m/%Y %H:%M:%S")
     data = data.drop(columns=["Date", "Time"]).sort_values("datetime").set_index("datetime")

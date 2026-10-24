@@ -1,10 +1,4 @@
--- Average daily energy per month, compared with the same month a year earlier.
---
--- Comparing with the previous year removes the seasonal effect, which a
--- month-to-month comparison would not. The monthly CTE is joined to itself:
--- for each month, the join finds the row for the same month one year back.
--- A LEFT JOIN keeps months that have no previous-year row (yoy_pct is NULL).
--- Months with fewer than 20 complete days are ignored as unreliable.
+-- Average daily kWh per month against the same month a year earlier.
 WITH daily AS (
     SELECT
         date(datetime)             AS day,

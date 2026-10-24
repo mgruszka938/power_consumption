@@ -1,8 +1,4 @@
--- Average power by hour of the day, weekdays against weekends.
---
--- strftime('%H', ...) extracts the hour from the ISO text timestamp and
--- strftime('%w', ...) gives the weekday number (0 = Sunday, 6 = Saturday).
--- AVG ignores NULLs, so missing readings do not pull the average down.
+-- Average kW by hour of day, weekdays against weekends.
 SELECT
     CAST(strftime('%H', datetime) AS INTEGER)                    AS hour,
     CASE WHEN strftime('%w', datetime) IN ('0', '6')

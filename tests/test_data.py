@@ -5,7 +5,6 @@ from household_power import data
 
 
 def series_with_gap(length):
-    """Value 0 before the gap, value 100 after it, `length` missing minutes in between."""
     index = pd.date_range("2020-01-01", periods=length + 2, freq="min")
     values = [0.0] + [np.nan] * length + [100.0]
     return pd.Series(values, index=index)
@@ -14,7 +13,7 @@ def series_with_gap(length):
 def test_short_gap_is_interpolated():
     filled = data.fill_short_gaps(series_with_gap(3))
     assert filled.notna().all()
-    assert filled.iloc[2] == 50.0  # linear: 0, 25, 50, 75, 100
+    assert filled.iloc[2] == 50.0
 
 
 def test_gap_of_exactly_the_limit_is_filled():
@@ -22,7 +21,7 @@ def test_gap_of_exactly_the_limit_is_filled():
 
 
 def test_longer_gap_is_left_completely_empty():
-    # Series.interpolate(limit=60) would fill the first 60 values of this gap.
+    # interpolate(limit=60) would fill 60 of these
     filled = data.fill_short_gaps(series_with_gap(61), max_minutes=60)
     assert filled.isna().sum() == 61
 

@@ -1,9 +1,4 @@
--- Daily energy with a 7-day moving average.
---
--- A window function computes the average without collapsing the rows.
--- RANGE with a numeric day number covers the previous 6 days *by date*.
--- ROWS BETWEEN 6 PRECEDING would cover the previous 6 rows instead, which
--- stretches over more than a week wherever days were dropped for missing data.
+-- Daily kWh with a 7-day average. RANGE over the date keeps the window at 7 calendar days when days are missing.
 WITH daily AS (
     SELECT
         date(datetime)             AS day,

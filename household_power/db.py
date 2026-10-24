@@ -1,4 +1,3 @@
-"""The SQLite database: building it from the cleaned data and querying it."""
 import sqlite3
 from pathlib import Path
 
@@ -12,15 +11,11 @@ QUERY_DIR = ROOT / "queries"
 
 
 def save_to_sqlite(cleaned, db_path=DB_PATH):
-    """Write the readings table and its index to db_path.
-
-    The database is built in a temporary file and renamed at the end, so db_path
-    only ever exists as a complete database, even if this function crashes halfway.
-    """
     db_path = Path(db_path)
     table = cleaned[SENSOR_COLS].reset_index()
     table["datetime"] = table["datetime"].dt.strftime("%Y-%m-%d %H:%M:%S")
 
+    # build in a temp file and rename, so a crash never leaves a half-written database
     tmp_path = db_path.with_name(db_path.name + ".tmp")
     tmp_path.unlink(missing_ok=True)
 
@@ -39,7 +34,6 @@ def query_names():
 
 
 def run_query(name, db_path=DB_PATH):
-    """Run queries/<name>.sql against the database and return a DataFrame."""
     sql = (QUERY_DIR / f"{name}.sql").read_text(encoding="utf-8")
     con = sqlite3.connect(f"file:{Path(db_path).as_posix()}?mode=ro", uri=True)
     try:

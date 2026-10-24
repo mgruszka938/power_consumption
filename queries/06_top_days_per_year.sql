@@ -1,8 +1,4 @@
--- The three highest-energy days of each calendar year.
---
--- RANK() numbers the days within each year (PARTITION BY year) from the
--- highest total down. The ranking is computed in a subquery because a
--- WHERE clause cannot filter on a window function directly.
+-- The three highest days of each year.
 WITH daily AS (
     SELECT
         date(datetime)             AS day,

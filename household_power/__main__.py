@@ -1,4 +1,3 @@
-"""Command line entry point: python -m household_power <command>."""
 import argparse
 
 import pandas as pd
@@ -28,7 +27,7 @@ def build(force):
 
 
 def main():
-    parser = argparse.ArgumentParser(prog="household_power", description=__doc__)
+    parser = argparse.ArgumentParser(prog="household_power")
     commands = parser.add_subparsers(dest="command", required=True)
 
     build_parser = commands.add_parser("build", help="clean the data and build power.db")
