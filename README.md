@@ -20,12 +20,6 @@ The water heater and air conditioner meter went from 31.1% of the energy in 2007
 
 ![Share of energy by sub-meter](figures/submetering.png)
 
-## Missing data
-
-25,979 rows (1.25%) have missing values, in 71 gaps. The longest is 7,226 minutes, about five days in August 2010. Gaps up to an hour are interpolated. The nine longer ones stay empty, so 25,691 rows are NULL in the database.
-
-My first version used `interpolate(limit=60)`, which fills the first 60 minutes of a longer gap instead of skipping it. That invented 540 readings. `fill_short_gaps` fixes it, and a test covers it.
-
 ## SQL
 
 The eight queries in [`queries/`](queries) were checked against pandas on the full data.
@@ -52,15 +46,9 @@ python -m household_power report
 python -m household_power query 08_missing_blocks
 ```
 
-The first build downloads the dataset (about 130 MB). `build --force` rebuilds an existing `power.db`, which is written to a temp file and renamed so a crash can't leave half a database.
-
 Tests run offline on synthetic data:
 
 ```bash
 pip install -r requirements-dev.txt
 pytest
 ```
-
-## Limits
-
-One household, so this says nothing about households in general.
